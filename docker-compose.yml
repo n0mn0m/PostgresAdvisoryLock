@@ -1,0 +1,9 @@
+db:
+  image: postgres:9.4.7
+  privileged: true
+  environment:
+    POSTGRES_USER: pgadmin
+    POSTGRES_DB: p0stGres!
+  ports:
+    - 5432:5432
+  command: ["-c", "shared_buffers=256MB", "-c", "max_connections=200"]
