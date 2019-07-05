@@ -19,7 +19,7 @@ class DatabaseConfig:
 
 class PostgresAdvisoryLock:
     """
-    Setup a global advisory lock in postgres to make sure only one
+    Setup an advisory lock in Postgres to make sure only one
     instance of the application is processing to maintain read/write
     safety.
 
@@ -53,7 +53,7 @@ class PostgresAdvisoryLock:
     async def _release(self):
         """
         Release the advisory lock when we leave the scope of the
-        GlobalAdvisory
+        context manager.
         """
         self.got_lock = False
         await self.locked_connection.execute("SELECT pg_advisory_unlock_all()")
