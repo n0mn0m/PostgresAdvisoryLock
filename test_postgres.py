@@ -1,7 +1,7 @@
 import sys
 import asyncio
 import asynctest
-from postgres import PostgresAdvisoryLock, PostgresAdvisoryLockException, DatabaseConfig
+from postgres import AdvisoryLock, AdvisoryLockException, DatabaseConfig
 
 
 class Test_postgres_advisory_lock(asynctest.TestCase):
@@ -9,18 +9,18 @@ class Test_postgres_advisory_lock(asynctest.TestCase):
         self.dbconfig = DatabaseConfig()
 
     async def test_get_results_with_lock(self):
-        async with PostgresAdvisoryLock(self.dbconfig, "gold_leader") as connection:
+        async with AdvisoryLock(self.dbconfig, "gold_leader") as connection:
             val = await connection.fetchrow("SELECT 1;")
 
             self.assertEqual(val[0], 1)
 
     async def test_lock_prevents_second_lock(self):
-        with self.assertRaises(PostgresAdvisoryLockException):
-            async with PostgresAdvisoryLock(
+        with self.assertRaises(AdvisoryLockException):
+            async with AdvisoryLock(
                     self.dbconfig, "gold_leader"
             ) as connection:
                 await connection.fetchrow("SELECT 1;")
-                async with PostgresAdvisoryLock(
+                async with AdvisoryLock(
                         self.dbconfig, "gold_leader"
                 ) as second_connection:
                     await second_connection.fetchrow("SELECT 1;")
@@ -47,8 +47,8 @@ class Test_postgres_advisory_lock(asynctest.TestCase):
         """
 
 
-        with self.assertRaises(PostgresAdvisoryLockException):
-            async with PostgresAdvisoryLock(self.dbconfig, "gold_leader") as connection:
+        with self.assertRaises(AdvisoryLockException):
+            async with AdvisoryLock(self.dbconfig, "gold_leader") as connection:
                 proc = await asyncio.subprocess.create_subprocess_exec(
                     sys.executable,
                     "-c",
@@ -63,4 +63,4 @@ class Test_postgres_advisory_lock(asynctest.TestCase):
                 await proc.wait()
 
                 if "PostgresAdvisoryLockException" in err:
-                    raise PostgresAdvisoryLockException
+                    raise AdvisoryLockException
