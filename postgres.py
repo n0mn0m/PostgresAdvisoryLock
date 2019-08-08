@@ -4,7 +4,7 @@ import asyncpg
 from dataclasses import dataclass
 
 
-class PostgresAdvisoryLockException(Exception):
+class AdvisoryLockException(Exception):
     """An exception occurred while acquiring the postgres advisory """
 
     pass
@@ -17,14 +17,14 @@ class DatabaseConfig:
     db_name: str = os.environ["DATABASE_NAME"]
 
 
-class PostgresAdvisoryLock:
+class AdvisoryLock:
     """
     Setup an advisory lock in Postgres to make sure only one
     instance of the application is processing to maintain read/write
     safety.
 
     Intended usage:
-    >>> async with PostgresAdvisoryLock(config, "gold_leader") as connection:
+    >>> async with AdvisoryLock(config, "gold_leader") as connection:
     >>>     async with connection.transaction():
     >>>         async for record in connection.cursor(query):
     >>>             # do something
@@ -82,12 +82,12 @@ class PostgresAdvisoryLock:
         just like asyncpg. To manage transactions inside of
         PostgresAdvisoryLock manually use:
 
-        >>> async with PostgresAdvisoryLock(config, "my_lock") as connection:
+        >>> async with AdvisoryLock(config, "my_lock") as connection:
         >>>     async with connection.transaction():
 
         or for full control:
 
-        >>> async with PostgresAdvisoryLock(config, "my_lock") as connection:
+        >>> async with AdvisoryLock(config, "my_lock") as connection:
         >>>     local_transaction = connection.transaction()
         >>>     await local_transaction.start()
         >>>     try:
@@ -114,7 +114,7 @@ class PostgresAdvisoryLock:
         else:
             if self.locked_connection:
                 await self.locked_connection.close()
-            raise PostgresAdvisoryLockException
+            raise AdvisoryLockException
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """
