@@ -20,7 +20,7 @@ from postgres import AdvisoryLock, DatabaseConfig
 
 dbconfig = DatabaseConfig()
 
-async with AdvisoryLock(dbconfig, "gold_leader") as connection:
+async with AdvisoryLock("gold_leader", dbconfig) as connection:
     # application code
 ```
 
